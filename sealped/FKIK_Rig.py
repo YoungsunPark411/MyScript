@@ -1,19 +1,23 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-path = r'E:\sealped'
+path = r'D:\MyScript\sealped'
 if not path in sys.path:
     sys.path.insert(0, path)
-from RIG import General as gn
-
-from RIG import IKFKBlend as kb
-from SealBasicJnt import JntAxesChange
-from RIG import Seal_IK as si
-from FKCtrlMake import FKCtrlMake
+from Material import General as gn
+from Material import IKFKBlend as kb
+from BasicJnt import SealBasicJnt as sb
+from Material import Seal_IK as si
+from Material import FKCtrlMake as fm
 
 reload(gn)
+reload(kb)
+reload(sb)
+reload(si)
+reload(fm)
 #print (sys.path)
 #sys.path.remove(sys.path[0])
+Scale = gn.scaleGet()
 def type_JntMake(orgJnt,type):
     guideCrv=gn.CrvFromJnt(orgJnt)
     
@@ -25,17 +29,63 @@ def type_JntMake(orgJnt,type):
         nj=pm.rename(y,x.replace('Jnt',type+'Jnt'))
         n_type_Jnt.append(nj)
 
-    JntAxesChange('xzy', 'ydown', n_type_Jnt)
+    sb.JntAxesChange('xzy', 'ydown', n_type_Jnt)
     return n_type_Jnt
+def switchMake(obj_,DrvJnt):
+    if 'Left' in str(DrvJnt[-1]):
+        side='Left'
+        MainColor = 13
+    elif 'Right' in str(DrvJnt[-1]):
+        side='Right'
+        MainColor = 6
+    else:
+        side=''
+        MainColor = 17
+
+    switch=gn.ControlMaker(side+obj_+'IKFKCtrl', 'switch', MainColor, exGrp=0, size= Scale)
+
+    return switch[0]
+    
+def switchSet(switch):
+    at=['translate','rotate','scale']
+    at2=['X','Y','Z']
+    for x in at:
+        for y in at2:
+            ct_=switch+'.'+x+y
+            pm.setAttr(ct_ ,lock= 1, keyable= 0, channelBox= 0)
+    #pm.setAttr(x + '.visibility', lock=1)
+    pm.addAttr(switch ,ln="IKFK", at='double', min=0, max=1, dv=0, k=1)
+    pm.addAttr(switch ,ln="AutoHideIKFK", at='enum', en='off:on', k=1)
+    pm.setAttr(switch+".AutoHideIKFK",keyable= 0, channelBox =1 )
+    switch.AutoHideIKFK.set(1)
+
+def IKFKVisConnect(name_,IKCtrlGrp,FKCtrlGrp,IKFKCtrl):
+    switch=IKFKCtrl
+    FKCtrlGrp_=FKCtrlGrp
+    IKCtrlGrp_ = IKCtrlGrp
+    rev = createNode('reverse', n='{0}RV'.format(name_))
+    cd = createNode('condition', n='{0}CD'.format(name_))
+    cd.secondTerm.set(1)
+    switch.IKFK >> cd.colorIfTrue.colorIfTrueR
+    switch.IKFK >> rev.input.inputX
+    switch.AutoHideIKFK >> cd.firstTerm
+    rev.output.outputX >> cd.colorIfTrue.colorIfTrueG
+    cd.outColor.outColorR >>FKCtrlGrp_.visibility
+    cd.outColor.outColorG >> IKCtrlGrp_.visibility
+
 
 def IKFK_JntRig_Make(orgJnt):
     IKJnt=type_JntMake(orgJnt,'IK')
     FKJnt=type_JntMake(orgJnt,'FK')
     DrvJnt = type_JntMake(orgJnt, 'Drv')
+
+    
     #IKRig
-    print('ok')
-    si.Spline(IKJnt, BIjoint_count=None)
-    #FKRig  ### 여기 아래부터 테스트 해볼것!
+
+    IKCtrl_=si.Spline(IKJnt, BIjoint_count=None)
+   
+    #FKRig 
+
     txlist=[]
     for x in orgJnt:
         rr=str(x)
@@ -53,23 +103,59 @@ def IKFK_JntRig_Make(orgJnt):
         obj_=''
     else:
         obj_=obj[0]
-    if obj_=='Arm':
-        shape_='circle'     
-    elif obj_=='Neck' or 'Spine':
+   
+    #스위치 만들기 
+    switch = switchMake(obj_,DrvJnt)
+    
+    if obj_=='Neck' or 'Spine':
         shape_='square'
-    else:
-        shape_='pin'        
-    FKCtrlMake(FKJnt,shape_,cns=1)
 
-    switch=pm.PyNode(obj_+'IKFKCtrl')
-    Jnt_sel = [IKJnt,FKJnt,DrvJnt,switch]
+    elif obj_=='Arm':
+        shape_ = 'square'
+        pm.delete(pm.pointConstraint(DrvJnt[0],switch))
+
+    else:
+        shape_='pin' 
+
+    switchSet(switch)
+        
+    FKCtrl_=fm.FKCtrlMake(FKJnt,shape_,cns=1)
+    Jnt_sel = [FKJnt[0],IKJnt[0],DrvJnt[0],switch]
     kb.IKFKBlend(Jnt_sel)
 
+    
+    #바인드 조인트 연결하기 
+    for x,y in zip(orgJnt,DrvJnt):
+        gn.Mcon(y, x, r=1, t=1, s=1,sh=1)
+
+    #그룹 정리
+    JntGrp=pm.createNode('transform',n=obj_+'JntGrp')
+    JntGrp.visibility.set(0)
+    pm.parent(IKJnt[0],FKJnt[0],DrvJnt[0],JntGrp)
+    CtrlGrp = pm.createNode('transform', n=obj_ + 'CtrlGrp')
+    pm.parent(FKCtrl_, IKCtrl_[0],switch,CtrlGrp)
+    gn.addNPO(switch,'Grp')
+    SysGrp=pm.createNode('transform', n=obj_ + 'SysGrp')
+    pm.parent(JntGrp,CtrlGrp,IKCtrl_[1],SysGrp)
+    if pm.objExists('RootSubCtrl'):
+        pm.parent(SysGrp,'RootSubCtrl')
+    else:
+        print('RootSubCtrl이 필요해요!')
+        pass
+        
+    #IKFKVis 연결하기
+    name_=obj_
+    IKCtrlGrp=IKCtrl_[0]
+    FKCtrlGrp=FKCtrl_
+    IKFKVisConnect(name_,IKCtrlGrp, FKCtrlGrp, switch)
 
 
 
+
+#준비물: 전체 컨트롤러~RootSubCtrl, 바인드용 조인트
 
 orgJnt=pm.ls(sl=1)
+#IKJnt=type_JntMake(orgJnt,'IK')
 IKFK_JntRig_Make(orgJnt)
 
 
