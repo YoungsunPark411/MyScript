@@ -50,7 +50,7 @@ def searchJoint(stJnt, enJnt):
     allP_ = enJnt.getAllParents()
     if stJnt in allP_:
         index = allP_.index(stJnt)
-    list_ = [enJnt] + allP_[:index+1]
+    list_ = [enJnt] + allP_[:int(index)+1]
     list_.reverse()
     return list_
 

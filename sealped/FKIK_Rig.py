@@ -9,15 +9,22 @@ from Material import IKFKBlend as kb
 from BasicJnt import SealBasicJnt as sb
 from Material import Seal_IK as si
 from Material import FKCtrlMake as fm
-
+'''
 reload(gn)
 reload(kb)
 reload(sb)
 reload(si)
 reload(fm)
+'''
 #print (sys.path)
 #sys.path.remove(sys.path[0])
 Scale = gn.scaleGet()
+def JntIVScale_disconnect(JntList):
+    JntList.reverse()
+    for x in range(len(JntList)):
+        if x==range(len(JntList))[-1]:continue
+        JntList[x+1].scale//JntList[x].inverseScale
+
 def type_JntMake(orgJnt,type):
     guideCrv=gn.CrvFromJnt(orgJnt)
     
@@ -43,7 +50,6 @@ def switchMake(obj_,DrvJnt):
         MainColor = 17
 
     switch=gn.ControlMaker(side+obj_+'IKFKCtrl', 'switch', MainColor, exGrp=0, size= Scale)
-
     return switch[0]
     
 def switchSet(switch):
@@ -63,8 +69,8 @@ def IKFKVisConnect(name_,IKCtrlGrp,FKCtrlGrp,IKFKCtrl):
     switch=IKFKCtrl
     FKCtrlGrp_=FKCtrlGrp
     IKCtrlGrp_ = IKCtrlGrp
-    rev = createNode('reverse', n='{0}RV'.format(name_))
-    cd = createNode('condition', n='{0}CD'.format(name_))
+    rev = pm.createNode('reverse', n='{0}RV'.format(name_))
+    cd = pm.createNode('condition', n='{0}CD'.format(name_))
     cd.secondTerm.set(1)
     switch.IKFK >> cd.colorIfTrue.colorIfTrueR
     switch.IKFK >> rev.input.inputX
@@ -79,11 +85,10 @@ def IKFK_JntRig_Make(orgJnt):
     FKJnt=type_JntMake(orgJnt,'FK')
     DrvJnt = type_JntMake(orgJnt, 'Drv')
 
-    
     #IKRig
 
     IKCtrl_=si.Spline(IKJnt, BIjoint_count=None)
-   
+
     #FKRig 
 
     txlist=[]
@@ -92,7 +97,7 @@ def IKFK_JntRig_Make(orgJnt):
         txlist.append(rr)
     txCombined=''.join(txlist)
     obj = []
-    objList=['Spine','Neck','Arm']
+    objList=['Spine','Neck','LeftArm','RightArm']
     for i in objList:
         if i in txCombined:
             obj.append(i)
@@ -110,7 +115,7 @@ def IKFK_JntRig_Make(orgJnt):
     if obj_=='Neck' or 'Spine':
         shape_='square'
 
-    elif obj_=='Arm':
+    elif obj_=='LeftArm'or'RightArm':
         shape_ = 'square'
         pm.delete(pm.pointConstraint(DrvJnt[0],switch))
 
@@ -142,20 +147,32 @@ def IKFK_JntRig_Make(orgJnt):
     else:
         print('RootSubCtrl이 필요해요!')
         pass
+    if pm.objExists('RigSysGrp'):
+        pm.parent(obj_ +'IKSysGrp','RigSysGrp')
+    else:
+        print('RigSysGrp이 필요해요!')
+        pass
         
     #IKFKVis 연결하기
     name_=obj_
     IKCtrlGrp=IKCtrl_[0]
     FKCtrlGrp=FKCtrl_
     IKFKVisConnect(name_,IKCtrlGrp, FKCtrlGrp, switch)
+    
+    #inverseScale 끊기
+    JntIVScale_disconnect(orgJnt)
+    JntIVScale_disconnect(IKJnt)
+    JntIVScale_disconnect(FKJnt)
+    JntIVScale_disconnect(DrvJnt)
 
 
 
 
 #준비물: 전체 컨트롤러~RootSubCtrl, 바인드용 조인트
+### 팔 싸이클 엄청 걸린다...!!!!/ 새창에서는 안 그러네...?
 
+# 바인드용 팔 조인트 차례대로 선택 후 실행하세요
 orgJnt=pm.ls(sl=1)
-#IKJnt=type_JntMake(orgJnt,'IK')
 IKFK_JntRig_Make(orgJnt)
 
 

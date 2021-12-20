@@ -65,7 +65,7 @@ sc=slls[0]
 tg=slls[1:]
 
 
-for i in xrange(len(tg)):
+for i in range(len(tg)):
     #mc.scaleConstraint(sc,tg[i])
     #sc.FacialDetailCtrlVis >> tg[i].getShape().visibility
     #sc.FacialCtrlVis >> tg[i].getShape().visibility
@@ -76,10 +76,10 @@ for i in xrange(len(tg)):
     #sc[i].s >> tg[i].inverseScale
     #matchParent( sc[i],tg[i])
     #OneParentCNS( sc[i],tg[i])
-    yc.Mcon(sc,tg[i],t=1, r=1, s=1, pvtCalc=1)
-    print(sc,tg[i])
-    mc.select(sc,tg[i])
-    mc.copySkinWeights(noMirror=True, sa='closestPoint' ,ia='label')
+    #yc.Mcon(sc,tg[i],t=1, r=1, s=1, pvtCalc=1)
+   
+    #mc.select(sc,tg[i])
+    #mc.copySkinWeights(noMirror=True, sa='closestPoint' ,ia='label')
     
 
     '''
@@ -93,6 +93,8 @@ for i in xrange(len(tg)):
      
     
     #sc.FacialDetailCtrlVis >> tg[i].getShape().visibility
+    sc.FacialCtrlVis >> tg[i].getShape().visibility
+    sc.FacialCtrlVis >> tg[i].replace('Left','Right').getShape().visibility
     
 #-----------------------------------------------------------------------
 
