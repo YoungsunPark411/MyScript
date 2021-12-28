@@ -156,7 +156,7 @@ def ArmAimRig(ctrl):
     pm.addAttr(ctrl[0],ln="Aim", at='double', min=0, max=10, dv=0, k=1)
     grp_=ctrl[0].getParent()
     acon=pm.aimConstraint(ctrl[-1],grp_,mo=1,wut=2,wuo=ctrl[-1])
-    acon.constraintRotate//grp_.rotate
+    #acon.constraintRotate//grp_.rotate
     pb_=pm.createNode('pairBlend',n=ctrl[0]+'AimPB')
     acon.constraintRotate>>pb_.inRotate2
     pb_.outRotate>>grp_.rotate
@@ -169,14 +169,14 @@ def ArmAimRig(ctrl):
 
 def ArmTwistJnt(crv_):
     dup=pm.duplicate(crv_)
-    TJnt_ = gn.spine_joint_make(dup, dup.replace('IKCrv', 'Twist').replace('1',''), 2, 1, '', ojVal='xzy', sawoVal='xdown')
-    sb.JntAxesChange('xzy', 'ydown', Jnt)
+    TJnt_ = gn.spine_joint_make(dup[0], dup[0].replace('IKCrv', 'Twist').replace('1',''), 2, 1, '', ojVal='xzy', sawoVal='xdown')
+    sb.JntAxesChange('xzy', 'ydown', TJnt_)
     pm.delete(dup)
     return TJnt_
 
 def ArmTwistRig(ctrl,crv_):
     TJnt=ArmTwistJnt(crv_)
-    Thandle=pm.ikHandle(sj=Jnt_[0], ee=Jnt_[-1], n=name_ + 'Handle', sol='ikSCsolver')
+    Thandle=pm.ikHandle(sj=TJnt[0], ee=TJnt[-1], n=TJnt[0].replace('Jnt','') + 'Handle', sol='ikSCsolver')
     pm.parent(Thandle[0],ctrl[-1])
 
     t1Pos=pm.createNode('locator',n=TJnt[0].replace('Jnt','Pos'))
@@ -192,6 +192,7 @@ def ArmTwistRig(ctrl,crv_):
         pm.parent(TJnt[0],'RigSysGrp')
 
     return PosGrp
+##### 팔 IK 추가된 리깅 짜놓고 실행은 안 시켜놨음 !
 
 
 def Spline(sel,BIjoint_count):

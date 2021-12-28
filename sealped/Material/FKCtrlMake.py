@@ -3,7 +3,7 @@ import pymel.core as pm
 import sys
 sys.path.append(r'D:\MyScript\sealped')
 from Material import General as gn
-reload(gn)
+#reload(gn)
 
 Scale = gn.scaleGet()
 def FKCtrlMake(JntList,shape_,cns):
