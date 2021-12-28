@@ -32,10 +32,10 @@ def IKCtrlMake(biJnt):
         
 
         if x == Jnt_[0]:
-            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'circle', MainColor, exGrp=0, size=Scale)
+            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'RoundSquare', MainColor, exGrp=0, size=Scale)
             CtrlList.append(IKCtrl[0])
         elif x == Jnt_[-1]:
-            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'circle', MainColor, exGrp=0, size=Scale)
+            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'RoundSquare', MainColor, exGrp=0, size=Scale)
             pm.select(IKCtrl[0])
             if 'Arm' in x:
                 pm.addAttr(ln="Follow", at='enum', en='Clavicle:Root:Fly:World', k=1)
@@ -43,7 +43,7 @@ def IKCtrlMake(biJnt):
                 pm.addAttr(ln="Follow", at='enum', en='RootSub:Root:Fly:World', k=1)
             CtrlList.append(IKCtrl[0])
         else:
-            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'circle', SubColor, exGrp=0, size=Scale)
+            IKCtrl = gn.ControlMaker(name_+'IKCtrl', 'ThickSquare', SubColor, exGrp=0, size=Scale)
             pm.select(IKCtrl[0])
             pm.addAttr(ln="Pbw", at='double', min=0, max=1, dv=0, k=1)
             CtrlList.append(IKCtrl[0])
@@ -152,9 +152,46 @@ def connectStretchSquash(ctrl,name_,Jnt_):
 
 
 
+def ArmAimRig(ctrl):
+    pm.addAttr(ctrl[0],ln="Aim", at='double', min=0, max=10, dv=0, k=1)
+    grp_=ctrl[0].getParent()
+    acon=pm.aimConstraint(ctrl[-1],grp_,mo=1,wut=2,wuo=ctrl[-1])
+    acon.constraintRotate//grp_.rotate
+    pb_=pm.createNode('pairBlend',n=ctrl[0]+'AimPB')
+    acon.constraintRotate>>pb_.inRotate2
+    pb_.outRotate>>grp_.rotate
+
+    AimML=pm.createNode('multDoubleLinear',n=ctrl[0]+'AimML')
+    AimML.input2.set(0.1)
+    ctrl[0].Aim>>AimML.input1
+    AimML.output>>pb_.weight
 
 
+def ArmTwistJnt(crv_):
+    dup=pm.duplicate(crv_)
+    TJnt_ = gn.spine_joint_make(dup, dup.replace('IKCrv', 'Twist').replace('1',''), 2, 1, '', ojVal='xzy', sawoVal='xdown')
+    sb.JntAxesChange('xzy', 'ydown', Jnt)
+    pm.delete(dup)
+    return TJnt_
 
+def ArmTwistRig(ctrl,crv_):
+    TJnt=ArmTwistJnt(crv_)
+    Thandle=pm.ikHandle(sj=Jnt_[0], ee=Jnt_[-1], n=name_ + 'Handle', sol='ikSCsolver')
+    pm.parent(Thandle[0],ctrl[-1])
+
+    t1Pos=pm.createNode('locator',n=TJnt[0].replace('Jnt','Pos'))
+    gn.PosCopy(ctrl[0],t1Pos)
+    pm.parent(t1Pos,TJnt[0])
+
+    t2Pos = pm.createNode('locator', n=TJnt[-1].replace('Jnt', 'Pos'))
+    gn.PosCopy(ctrl[-1], t2Pos)
+    pm.parent(t2Pos, TJnt[-1])
+    PosGrp=[t1Pos,t2Pos]
+
+    if pm.objExist('RigSysGrp'):
+        pm.parent(TJnt[0],'RigSysGrp')
+
+    return PosGrp
 
 
 def Spline(sel,BIjoint_count):
@@ -179,8 +216,7 @@ def Spline(sel,BIjoint_count):
     handle = SPIKHandle[0]
     handle.dTwistControlEnable.set(1)
     handle.dWorldUpType.set(4)
-    ctrl[0].worldMatrix[0]>>handle.dWorldUpMatrix
-    ctrl[-1].worldMatrix[0] >> handle.dWorldUpMatrixEnd
+
     if BIjoint_count==None:
         PBGrpList_=PBRig(ctrl)
     else:
@@ -192,6 +228,15 @@ def Spline(sel,BIjoint_count):
     for x in ctrl:
         gn.addNPO(x,'Grp')
         pm.setAttr(x.scaleX,lock=1)
+
+    if 'Arm' in str(Jnt_):
+        ArmAimRig(ctrl)
+        TPos=ArmTwistRig(ctrl, crv_)
+        TPos[0].worldMatrix[0] >> handle.dWorldUpMatrix
+        TPos[-1].worldMatrix[0] >> handle.dWorldUpMatrixEnd
+    else:
+        pass
+
 
     return [grp_,SysGrp_]
     

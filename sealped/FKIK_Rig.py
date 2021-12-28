@@ -113,10 +113,10 @@ def IKFK_JntRig_Make(orgJnt):
     switch = switchMake(obj_,DrvJnt)
     
     if obj_=='Neck' or 'Spine':
-        shape_='square'
+        shape_='RoundSquare'
 
     elif obj_=='LeftArm'or'RightArm':
-        shape_ = 'square'
+        shape_ = 'RoundSquare'
         pm.delete(pm.pointConstraint(DrvJnt[0],switch))
 
     else:

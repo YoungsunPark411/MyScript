@@ -3,7 +3,7 @@ import pymel.core as pm
 import sys
 sys.path.append(r'D:\MyScript\sealped')
 from Material import General as gn
-#reload(gn)
+reload(gn)
 
 Scale = gn.scaleGet()
 def FKCtrlMake(JntList,shape_,cns):
@@ -23,13 +23,12 @@ def FKCtrlMake(JntList,shape_,cns):
         FKCtrl = gn.ControlMaker('%sFKCtrl' % x.replace('Jnt','').replace('FK',''), shape_, MainColor, exGrp=0, size= Scale)
         gn.PosCopy(x, FKCtrl[0])
         ctlList.append(FKCtrl[0])
-        gn.rotate_components(0, 0, 90, FKCtrl[0])
+        #gn.rotate_components(0, 0, 90, FKCtrl[0])
 
     for i in range(len(ctlList)):
         if i == 0: continue
         pm.parent(ctlList[i], ctlList[i - 1])
-    #AllGrp=pm.createNode('transform',n='%sFKGrp'%JntList[0])
-    #pm.parent(ctlList[0],AllGrp)
+
     if cns == 0:
         pass
     elif cns == 1:
