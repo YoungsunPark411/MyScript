@@ -1,7 +1,7 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-sys.path.append(r'D:\MyScript\sealped')
+sys.path.append(r'D:?MyScript?sealped')
 from Material import General as gn
 #reload(gn)
 
@@ -37,6 +37,37 @@ def FKCtrlMake(JntList,shape_,cns):
     for y in ctlList:
         gn.addNPO(y,'Grp')
     MotherFKCtrlGrp=pm.listRelatives(ctlList[0],p=1)[0]
-    return MotherFKCtrlGrp
+    return [ctlList,MotherFKCtrlGrp]
+
 
 #FKCtrlMake(JntList,shape_,cns)
+
+
+###Finger FKCtrl 리깅 만들기~
+
+side=['Left','Right']
+obj=['Index','Middle','Ring','Pinky']
+
+for x in side:
+    MotherFKCtrlGrp_list=[]
+    for y in obj:
+        jnt_list=gn.jntList(x+y+'1Jnt',2)
+        fc=FKCtrlMake(jnt_list, 'pin', cns=1)
+        MotherFKCtrlGrp_list.append(fc[1])
+        for i in fc[0]:
+            pm.select(i)
+            if x=='Left':
+                gn.rotate_components(90, 0, 0, nodes=None)
+                gn.ChangeCurveColor(i, colorNum=20)
+            else:
+                gn.rotate_components(-90, 0, 0, nodes=None)
+                gn.ChangeCurveColor(i, colorNum=18)
+
+    if pm.objExists(x+'HandCtrl'):
+
+        pm.parent(MotherFKCtrlGrp_list,x+'HandCtrl')
+    #for z in ctrl_List:
+        #gn.addNPO(z,'Grp')
+                
+
+                

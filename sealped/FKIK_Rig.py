@@ -40,16 +40,16 @@ def type_JntMake(orgJnt,type):
     return n_type_Jnt
 def switchMake(obj_,DrvJnt):
     if 'Left' in str(DrvJnt[-1]):
-        side='Left'
+
         MainColor = 13
     elif 'Right' in str(DrvJnt[-1]):
-        side='Right'
+       
         MainColor = 6
     else:
-        side=''
+
         MainColor = 17
 
-    switch=gn.ControlMaker(side+obj_+'IKFKCtrl', 'switch', MainColor, exGrp=0, size= Scale)
+    switch=gn.ControlMaker(obj_+'IKFKCtrl', 'switch', MainColor, exGrp=0, size= Scale)
     return switch[0]
     
 def switchSet(switch):
@@ -123,15 +123,13 @@ def IKFK_JntRig_Make(orgJnt):
         shape_='pin' 
 
     switchSet(switch)
-        
-    FKCtrl_=fm.FKCtrlMake(FKJnt,shape_,cns=1)
+          
+    FKCtrl_=fm.FKCtrlMake(FKJnt,shape_,cns=1)[1]
     Jnt_sel = [FKJnt[0],IKJnt[0],DrvJnt[0],switch]
     kb.IKFKBlend(Jnt_sel)
 
     
-    #바인드 조인트 연결하기 
-    for x,y in zip(orgJnt,DrvJnt):
-        gn.Mcon(y, x, r=1, t=1, s=1,sh=1)
+    
 
     #그룹 정리
     JntGrp=pm.createNode('transform',n=obj_+'JntGrp')
@@ -152,7 +150,16 @@ def IKFK_JntRig_Make(orgJnt):
     else:
         print('RigSysGrp이 필요해요!')
         pass
+    
+    #바인드 조인트 연결하기 
+    for x,y in zip(orgJnt,DrvJnt):
+        gn.Mcon(y, x, r=1, t=1, s=1,sh=1,mo=1)
         
+    #스위치 위치시키기
+   
+    gn.PosCopy(orgJnt[-1], switch.getParent())
+    gn.Mcon(orgJnt[-1], switch.getParent(), r=1, t=1, sh=1, mo=0, pvtCalc=1)
+      
     #IKFKVis 연결하기
     name_=obj_
     IKCtrlGrp=IKCtrl_[0]
@@ -164,8 +171,11 @@ def IKFK_JntRig_Make(orgJnt):
     JntIVScale_disconnect(IKJnt)
     JntIVScale_disconnect(FKJnt)
     JntIVScale_disconnect(DrvJnt)
+    
 
+    
 
+#reload(si)
 
 
 #준비물: 전체 컨트롤러~RootSubCtrl, 바인드용 조인트

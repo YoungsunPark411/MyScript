@@ -47,6 +47,8 @@ def IKFKBlend(object_):
         switch.IKFK>>BC_.blender
         switch.IKFK >> PB_.weight
 
+    return [PB_,BC_]
+
 
 
 
