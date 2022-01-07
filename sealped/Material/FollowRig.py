@@ -45,7 +45,7 @@ def CnsMake(cns,pa,ch):
         pass
     return cns_
 
-# 드라이브 들(컨트롤) 선택 후 드리븐(컨트롤) 선택
+# 드라이브 들(컨트롤) 선택 후 드리븐(컨트롤-Follow 채널이 있어야한다) 선택
 def FollowMake(sel,cnsType):
     driven=sel[-1]
     driver=sel[:-1]
@@ -68,6 +68,7 @@ def FollowMake(sel,cnsType):
     drnGrp=driven.getParent()
 
     CNS_=CnsMake(cnsType, spaceList, drnGrp)
+    print('ok')
 
     attrlist = []
     for i in range(len(sel[:-1])):
