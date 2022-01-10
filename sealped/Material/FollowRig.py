@@ -68,7 +68,6 @@ def FollowMake(sel,cnsType):
     drnGrp=driven.getParent()
 
     CNS_=CnsMake(cnsType, spaceList, drnGrp)
-    print('ok')
 
     attrlist = []
     for i in range(len(sel[:-1])):
