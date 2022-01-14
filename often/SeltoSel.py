@@ -34,9 +34,18 @@ hSelSz= int(len(slls)/2)
 sc=slls[:hSelSz]
 tg=slls[hSelSz:]
 
-for i in range(hSelSz):
+for i in range(hSelSz): 
+    '''  
+    rvs_=pm.createNode('multiplyDivide',n=tg[i]+'MD')
+    list(map(lambda A: pm.setAttr(rvs_+'.input2%s'%A,-1), ['X', 'Y', 'Z']))
+    tg[i].t>>rvs_.input1
+    rvs_.output>>sc[i].t
+    '''
+
+    list(map(lambda A: pm.connectAttr(sc[i]+'.%s'%A, tg[i]+'.%s'%A), ['translate', 'rotate', 'scale']))
+
     #sc[i].result.position>>tg[i].translate
-    pm.delete(pm.pointConstraint(sc[i],tg[i]))
+    #pm.delete(pm.pointConstraint(sc[i],tg[i]))
     #yc.PosCopy(sc[i],tg[i])
     #pm.connectAttr(sc[i]+'.allCoordinates',tg[i]+'.translate')
     #pm.delete(pm.parentConstraint(sc[i],tg[i]))
@@ -68,7 +77,7 @@ tg=slls[1:]
 for i in range(len(tg)):
     #mc.scaleConstraint(sc,tg[i])
     #sc.FacialDetailCtrlVis >> tg[i].getShape().visibility
-    #sc.FacialCtrlVis >> tg[i].getShape().visibility
+    sc.IKSegVis >> tg[i].visibility
     
     
     #print sc
@@ -162,7 +171,13 @@ for i in xrange(len(slls)):
 
 
 
-
+#선택한 컨트롤 안에 조인트 붙여넣기 or Mcon하기
+slls = pm.ls(sl=1)
+for i in slls:
+    jnt=pm.createNode('transform',n='%s'%i.replace('DrvJnt','SubPos'))
+    
+    pm.delete(pm.parentConstraint( i,jnt))
+    pm.parent(jnt,i)
   
 
 

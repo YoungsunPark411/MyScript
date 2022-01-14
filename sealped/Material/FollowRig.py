@@ -34,13 +34,13 @@ def NameExtraction(sel):
 
 def CnsMake(cns,pa,ch):
     if cns == 'scale':
-        cns_=pm.parentConstraint(pa,ch,mo=1)
+        cns_=pm.scaleConstraint(pa,ch,mo=1)
     elif cns == 'orient':
         cns_ = pm.orientConstraint(pa, ch,mo=1)
     elif cns == 'point':
         cns_ = pm.pointConstraint(pa, ch,mo=1)
     elif cns == 'parent':
-        cns_ = pm.scaleConstraint(pa, ch,mo=1)
+        cns_ = pm.parentConstraint(pa, ch,mo=1)
     else:
         pass
     return cns_
@@ -86,5 +86,5 @@ def FollowMake(sel,cnsType):
 
 
 sel=pm.ls(sl=1)				
-FollowMake(sel,'orient')
+FollowMake(sel,'parent')
 

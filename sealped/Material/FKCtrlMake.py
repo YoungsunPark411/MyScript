@@ -20,9 +20,11 @@ def FKCtrlMake(JntList,shape_,cns):
         MainColor = 17
     ctlList=[]
     for x in JntList:
+        
         FKCtrl = gn.ControlMaker('%sFKCtrl' % x.replace('Jnt','').replace('FK',''), shape_, MainColor, exGrp=0, size= Scale)
         gn.PosCopy(x, FKCtrl[0])
         ctlList.append(FKCtrl[0])
+        
         #gn.rotate_components(0, 0, 90, FKCtrl[0])
 
     for i in range(len(ctlList)):
@@ -39,10 +41,13 @@ def FKCtrlMake(JntList,shape_,cns):
     MotherFKCtrlGrp=pm.listRelatives(ctlList[0],p=1)[0]
     return [ctlList,MotherFKCtrlGrp]
 
-
+'''
 #FKCtrlMake(JntList,shape_,cns)
+JntList=pm.ls(sl=1)
+FKCtrlMake(JntList,'clover',0)
+'''
 
-
+'''
 ###Finger FKCtrl ¸®±ë ¸¸µé±â~
 
 side=['Left','Right']
@@ -68,6 +73,6 @@ for x in side:
         pm.parent(MotherFKCtrlGrp_list,x+'HandCtrl')
     #for z in ctrl_List:
         #gn.addNPO(z,'Grp')
-                
+'''                
 
                 
