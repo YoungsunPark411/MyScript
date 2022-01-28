@@ -28,6 +28,8 @@ def IKFKBlend(object_):
     DrvChain = getChildren_(object_[2], type_='joint')
     switch = object_[-1]
     
+    OrigChain =getChildren_(object_[3], type_='joint')
+    
     for i,drv in enumerate(DrvChain):
         name_ = drv.name()
         #print(name_, FKChain[i], IKChain[i])
@@ -38,11 +40,12 @@ def IKFKBlend(object_):
         FKChain[i].s >> BC_.color1
         IKChain[i].r >> PB_.ir1
         IKChain[i].t >> PB_.it1
-        IKChain[i].s >> BC_.color2
+        IKChain[i].SquashScaleY >> BC_.color2G
+        IKChain[i].SquashScaleZ >> BC_.color2B
 
         PB_.outTranslate >> drv.t
         PB_.outRotate >> drv.r
-        BC_.output >> drv.s
+        BC_.output >> OrigChain[i].s
 
         switch.IKFK>>BC_.blender
         switch.IKFK >> PB_.weight

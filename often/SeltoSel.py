@@ -78,7 +78,7 @@ tg=slls[1:]
 for i in range(len(tg)):
     #mc.scaleConstraint(sc,tg[i])
     #sc.FacialDetailCtrlVis >> tg[i].getShape().visibility
-    sc.IKSegVis >> tg[i].visibility
+    sc.ToesCtrlVis >> tg[i].visibility
     
     
     #print sc

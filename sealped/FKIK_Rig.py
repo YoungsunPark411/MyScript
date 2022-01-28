@@ -1,7 +1,7 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-path = r'D:괣yScript굎ealped'
+path = r'D:\MyScript\sealped'
 if not path in sys.path:
     sys.path.insert(0, path)
 from Material import General as gn
@@ -125,11 +125,11 @@ def IKFK_JntRig_Make(orgJnt):
     switchSet(switch)
           
     FKCtrl_=fm.FKCtrlMake(FKJnt,shape_,cns=1)[1]
-    Jnt_sel = [FKJnt[0],IKJnt[0],DrvJnt[0],switch]
+    Jnt_sel = [FKJnt[0],IKJnt[0],DrvJnt[0],orgJnt[0],switch]
     kb.IKFKBlend(Jnt_sel)
 
     
-    
+    '''
 
     #그룹 정리
     JntGrp=pm.createNode('transform',n=obj_+'JntGrp')
@@ -172,7 +172,7 @@ def IKFK_JntRig_Make(orgJnt):
     JntIVScale_disconnect(FKJnt)
     JntIVScale_disconnect(DrvJnt)
     
-
+    '''
     
 
 #reload(si)

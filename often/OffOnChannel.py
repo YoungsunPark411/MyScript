@@ -17,7 +17,7 @@ mc.connectAttr('RootCtrl.SimDummyVis','DynGrp.visibility')
 
 sel=mc.ls(sl=1)
 for i in range(len(sel)):
-    mc.addAttr (sel,ln = "Follow",at= 'enum',dv= 0,k=1,en= "Jaw:Head")
+    mc.addAttr (sel,ln = "Follow",at= 'enum',dv= 0,k=1,en= "World:Move:Fly")
     
 Cream:Blue:Mind:Red:Deep_Green:Gold:White
 Olive:Sky:Lemmon:Orange:Cream:Purple

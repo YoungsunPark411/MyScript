@@ -1,7 +1,7 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-sys.path.append(r'D:괣yScript굎ealped')
+sys.path.append(r'D:\MyScript\sealped')
 from Material import General as gn
 #reload(gn)
 
@@ -41,11 +41,11 @@ def FKCtrlMake(JntList,shape_,cns):
     MotherFKCtrlGrp=pm.listRelatives(ctlList[0],p=1)[0]
     return [ctlList,MotherFKCtrlGrp]
 
-'''
+
 #FKCtrlMake(JntList,shape_,cns)
 JntList=pm.ls(sl=1)
-FKCtrlMake(JntList,'clover',0)
-'''
+FKCtrlMake(JntList,'pin',1)
+
 
 '''
 ###Finger FKCtrl 리깅 만들기~
