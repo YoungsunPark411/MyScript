@@ -1,7 +1,7 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-path = r'D:\MyScript\sealped'
+path = r'D:괣yScript굎ealped'
 if not path in sys.path:
     sys.path.insert(0, path)
 from Material import General as gn

@@ -35,6 +35,7 @@ sc=slls[:hSelSz]
 tg=slls[hSelSz:]
 
 for i in range(hSelSz): 
+    #sc[i].translate>>tg[i].min
     '''  
     rvs_=pm.createNode('multiplyDivide',n=tg[i]+'MD')
     list(map(lambda A: pm.setAttr(rvs_+'.input2%s'%A,-1), ['X', 'Y', 'Z']))
@@ -42,12 +43,12 @@ for i in range(hSelSz):
     rvs_.output>>sc[i].t
     '''
 
-    list(map(lambda A: pm.connectAttr(sc[i]+'.%s'%A, tg[i]+'.%s'%A), ['translate', 'rotate', 'scale']))
+    #list(map(lambda A: pm.connectAttr(sc[i]+'.%s'%A, tg[i]+'.%s'%A), ['translate', 'rotate', 'scale']))
 
     #sc[i].result.position>>tg[i].translate
     #pm.delete(pm.pointConstraint(sc[i],tg[i]))
-    #yc.PosCopy(sc[i],tg[i])
-    #pm.connectAttr(sc[i]+'.allCoordinates',tg[i]+'.translate')
+    yc.PosCopy(sc[i],tg[i])
+    #pm.connectAttr(sc[i]+'.IKSegVis',tg[i]+'.visibility')
     #pm.delete(pm.parentConstraint(sc[i],tg[i]))
 
     #pm.parentConstraint(sc[i],tg[i])
@@ -56,7 +57,7 @@ for i in range(hSelSz):
     #matchParent( sc[i],tg[i])
     #OneParentCNS( sc[i],tg[i])
     
-    yc.Mcon(sc[i],tg[i],t=1, r=1, s=1, sh=1, mo=1, pvtCalc=1)
+    yc.Mcon(sc[i],tg[i],  t=1,r=1 , pvtCalc=1)
     #pm.aimConstraint( sc[i],tg[i])
     
     
@@ -106,7 +107,31 @@ for i in range(len(tg)):
     sc.FacialCtrlVis >> tg[i].replace('Left','Right').getShape().visibility
     
 #-----------------------------------------------------------------------
+slls = pm.ls(sl=1)
+for i in slls:
+    ik_=pm.PyNode(i.replace('DrvJntBC','FKJnt'))
+    ik_.scale>>i.color1
+    #i.outTranslate>>ik_.t
+    '''
+    ik_=pm.PyNode(i.replace('DrvJntPB','DrvJnt'))
+    i.outRotate>>ik_.r
+    i.outTranslate>>ik_.t
+    '''
 
+    '''
+    #offGrp_=pm.PyNode(i.replace('Ctrl','CtrlOffGrp'))
+    ik_=pm.PyNode(i.replace('DrvJntPB','IKJnt'))
+    fk_=pm.PyNode(i.replace('DrvJntPB','FKJnt'))
+    ik_.rotate>>i.inRotate1
+    ik_.translate>>i.inTranslate1
+    fk_.rotate>>i.inRotate2
+    fk_.translate>>i.inTranslate2
+    '''
+    
+    '''
+    pm.parent(i,i.replace('Ctrl','CtrlGrp'))
+    pm.delete(i.replace('Ctrl','Rvs'))
+    '''
     
 
 
@@ -254,8 +279,10 @@ for x in clu:
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-sys.path.append(r'E:Sealped')
-from RIG import General as gn
+path = r'D:\MyScript\sealped'
+if not path in sys.path:
+    sys.path.insert(0, path)
+from Material import General as gn
 reload(gn)
 
 sel=pm.ls(sl=1)
@@ -269,7 +296,7 @@ for x in tt:
     
 # 그룹 만들기
 sel=pm.ls(sl=1)
-yc.addNPO(sel,'SetGrp')
+yc.addNPO(sel,'Grp')
 
 #조인트에 사각 컨트롤 달기 
 Jnt=pm.ls(sl=1)

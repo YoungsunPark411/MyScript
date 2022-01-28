@@ -1,7 +1,7 @@
 # -*- coding: cp949 -*-
 import pymel.core as pm
 import sys
-sys.path.append(r'D:?MyScript?sealped')
+sys.path.append(r'D:괣yScript굎ealped')
 from Material import General as gn
 #reload(gn)
 
